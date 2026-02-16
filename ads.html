@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Please Wait...</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: Arial; background: #000; color: #fff; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .timer-circle { width: 120px; height: 120px; border: 4px solid #00ffcc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 20px; box-shadow: 0 0 15px #00ffcc; }
+        .ad-container { width: 90%; max-width: 320px; height: 250px; background: #222; border: 1px dashed #444; margin-top: 20px; display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+
+    <div class="timer-circle" id="timer">60</div>
+    <h3>Aapka link load ho raha hai...</h3>
+    <p>Kripya 60 seconds intezar karein.</p>
+
+    <div class="ad-container">
+        <p style="color:#555;">[Ad Loading...]</p>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const target = urlParams.get('url');
+
+        let timeLeft = 60;
+        const countdown = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').innerText = timeLeft;
+
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                if (target) {
+                    window.location.href = decodeURIComponent(target);
+                } else {
+                    document.body.innerHTML = "<h2>Error: Link nahi mila!</h2>";
+                }
+            }
+        }, 1000);
+
+        // Agar user back jaye toh rokne ke liye
+        window.onbeforeunload = function() { return "Kya aap waqai jana chahte hain?"; };
+    </script>
+
+    </body>
+</html>
