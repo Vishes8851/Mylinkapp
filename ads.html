@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wait for your Link...</title>
+    <style>
+        body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #1e293b; color: #fff; text-align: center; }
+        .container { padding: 30px; border: 2px solid #38bdf8; border-radius: 20px; background: #1e293b; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        #timer { font-size: 60px; font-weight: bold; color: #38bdf8; margin: 20px 0; }
+    </style>
+    
+    <script src="//pl28732282.effectivegatetocpm.com/6d/5a/e2/6d5ae25a8b0c2974cabf7d073c7cc9f8.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div style="font-size: 20px;">Aapka link taiyar ho raha hai...</div>
+        <div id="timer">30</div>
+        <div style="color: #94a3b8;">Kripya 30 second intezar karein.</div>
+    </div>
+    <script>
+        let timeLeft = 30;
+        const timerElement = document.getElementById('timer');
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerElement.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                const finalUrl = localStorage.getItem('targetUrl');
+                if (finalUrl) { window.location.href = finalUrl; }
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
