@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Cloud</title>
+    
+    <script type='text/javascript' src='//pl25732282.effectivegatecpm.com/6d/5a/e2/6d5ae25a8b0c2974cabf7d073c7cc9f8.js'></script>
+
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
+        .box { max-width: 400px; margin: auto; background: #111; padding: 25px; border-radius: 20px; border: 1px solid #333; }
+        
+        /* Shuru mein Blur rahega */
+        img, video { width: 100%; border-radius: 12px; filter: blur(65px); transition: 2s; margin-top: 15px; }
+        
+        .btn { background: #0084ff; color: #fff; border: none; padding: 18px 40px; border-radius: 50px; font-size: 19px; font-weight: bold; margin-top: 25px; cursor: pointer; width: 100%; }
+        .status-msg { margin-top: 15px; font-size: 15px; color: #ffcc00; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h3 id="title">FILE SECURED</h3>
+    
+    <img id="myPic" src="" style="display:none;">
+    <video id="myVid" playsinline loop style="display:none;"></video>
+
+    <div id="msg" class="status-msg">
+        Detecting file...
+    </div>
+
+    <button id="mainBtn" class="btn" onclick="startSystem()">UNLOCK TO VIEW</button>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const mediaLink = urlParams.get('m');
+    const img = document.getElementById('myPic');
+    const vid = document.getElementById('myVid');
+    const msg = document.getElementById('msg');
+
+    // Check if Video or Photo
+    let isVideo = mediaLink && mediaLink.match(/\.(mp4|mov|webm|m4v)/i);
+
+    if (mediaLink) {
+        if (isVideo) {
+            vid.src = mediaLink; vid.style.display = 'block';
+            msg.innerHTML = "Video detected. Unlock to watch.<br>वीडियो मिली है। देखने के लिए अनलॉक करें।";
+        } else {
+            img.src = mediaLink; img.style.display = 'block';
+            msg.innerHTML = "Photo detected. Unlock to view.<br>फोटो मिली है। देखने के लिए अनलॉक करें।";
+        }
+    }
+
+    function startSystem() {
+        // 1. Ads khulega (ads.html)
+        window.open('ads.html', '_blank');
+
+        // 2. Button badal jayega
+        document.getElementById('mainBtn').disabled = true;
+        document.getElementById('mainBtn').style.background = "#444";
+        
+        let timeLeft = 10;
+        let timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('mainBtn').innerText = `Unlocking in ${timeLeft}s...`;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                unlockMedia();
+            }
+        }, 1000);
+    }
+
+    function unlockMedia() {
+        // 3. Blur khatam aur media clear
+        img.style.filter = "blur(0px)";
+        vid.style.filter = "blur(0px)";
+        if(vid.src) vid.play();
+        
+        document.getElementById('mainBtn').style.display = 'none';
+        document.getElementById('title').innerText = "🔓 UNLOCKED";
+        msg.innerHTML = "<span style='color:#00ff00;'>Enjoy your content!<br>आनंद लें!</span>";
+    }
+</script>
+
+</body>
+</html>
