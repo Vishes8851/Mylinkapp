@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Player</title>
+    <style>
+        body { background: #0f0f0f; color: #fff; font-family: 'Roboto', Arial, sans-serif; text-align: center; margin: 0; padding: 0; }
+        .video-container { width: 100%; max-width: 500px; margin: 20px auto; position: relative; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        img, video { width: 100%; display: block; filter: blur(45px); transition: 0.5s; }
+        
+        /* AD OVERLAY (YouTube Style) */
+        #adOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; }
+        .ad-text { color: #fff; font-size: 14px; margin-bottom: 10px; background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 20px; }
+        
+        /* PROGRESS BAR */
+        .progress-container { width: 80%; height: 4px; background: #333; border-radius: 2px; margin-bottom: 20px; position: relative; }
+        #progressBar { width: 0%; height: 100%; background: #ff0000; border-radius: 2px; transition: 1s linear; }
+
+        /* SKIP BUTTON */
+        #skipBtn { 
+            position: absolute; bottom: 60px; right: 0; background: rgba(0,0,0,0.8); 
+            border: 1px solid #555; color: #fff; padding: 10px 20px; font-size: 16px; 
+            cursor: pointer; display: none; border-right: none; border-top-left-radius: 4px; border-bottom-left-radius: 4px;
+        }
+        #skipBtn:hover { background: #333; }
+
+        .unlock-trigger { background: #ff0000; color: #fff; border: none; padding: 15px 30px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 16px; }
+        
+        /* ADMIN PANEL */
+        .admin-section { padding: 20px; background: #1a1a1a; margin: 20px; border-radius: 10px; border: 1px solid #333; }
+        input { padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: #fff; margin: 10px 0; width: 80%; }
+    </style>
+</head>
+<body>
+
+<div id="playerView" style="display:none;">
+    <div class="video-container">
+        <img id="myPhoto" style="display:none;">
+        <video id="myVideo" style="display:none;" playsinline loop muted></video>
+
+        <div id="adOverlay">
+            <span id="adTitle" class="ad-text">Ad Loading...</span>
+            <div id="loadingCircle" class="progress-container">
+                <div id="progressBar"></div>
+            </div>
+            <button class="unlock-trigger" id="startAction" onclick="startYouTubeAd()">▶ UNLOCK CONTENT</button>
+        </div>
+
+        <button id="skipBtn" onclick="skipAndShow()">Skip Ad &nbsp; ⏩</button>
+    </div>
+    <p id="hintText" style="color:#aaa; font-size:12px;">Vigyapan ke baad video unlock ho jayega</p>
+</div>
+
+<div id="loginBox" class="admin-section">
+    <h3 style="color:#ff0000;">Media Admin</h3>
+    <input type="password" id="adminPass" placeholder="Enter Password">
+    <button class="unlock-trigger" style="padding:10px 20px;" onclick="doLogin()">Login</button>
+</div>
+
+<div id="uploadBox" class="admin-section" style="display:none;">
+    <h3>Upload New File</h3>
+    <input type="file" id="fileIn">
+    <button class="unlock-trigger" onclick="uploadToCloud()">Create Earning Link</button>
+    <div id="result" style="margin-top:20px; display:none;">
+        <input type="text" id="finalUrl" readonly style="width:90%; color:#00ffa3;">
+        <p style="font-size:12px;">Link copy karke share karein!</p>
+    </div>
+</div>
+
+<script>
+    const CLOUD_NAME = "dn10tsupa"; 
+    const UPLOAD_PRESET = "dn10tsupa";
+
+    const params = new URLSearchParams(window.location.search);
+    const m = params.get('m');
+
+    if (m) {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('playerView').style.display = 'block';
+        if (m.match(/\.(mp4|mov|webm|m4v)/i)) {
+            const v = document.getElementById('myVideo'); v.src = m; v.style.display = 'block';
+        } else {
+            const p = document.getElementById('myPhoto'); p.src = m; p.style.display = 'block';
+        }
+    }
+
+    function startYouTubeAd() {
+        // 1. Open Adsterra Direct Link (High Earning)
+        window.open('https://www.google.com', '_blank'); 
+
+        // 2. Start Animation
+        document.getElementById('startAction').style.display = 'none';
+        document.getElementById('adTitle').innerText = "Ad will end in 8s";
+        
+        let progress = 0;
+        let timeLeft = 8;
+        const bar = document.getElementById('progressBar');
+        
+        let interval = setInterval(() => {
+            progress += 12.5; // For 8 seconds
+            timeLeft--;
+            bar.style.width = progress + "%";
+            document.getElementById('adTitle').innerText = "Ad will end in " + (timeLeft > 0 ? timeLeft : 0) + "s";
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                document.getElementById('adTitle').style.display = 'none';
+                document.getElementById('loadingCircle').style.display = 'none';
+                document.getElementById('skipBtn').style.display = 'block'; // SKIP AD DIKHAO
+            }
+        }, 1000);
+    }
+
+    function skipAndShow() {
+        document.getElementById('adOverlay').style.display = 'none';
+        document.getElementById('skipBtn').style.display = 'none';
+        
+        const photo = document.getElementById('myPhoto');
+        const video = document.getElementById('myVideo');
+        
+        photo.style.filter = "blur(0px)";
+        video.style.filter = "blur(0px)";
+        
+        if (video.src) {
+            video.muted = false;
+            video.play();
+        }
+        document.getElementById('hintText').innerText = "✅ Enjoy your content!";
+    }
+
+    // Admin Functions
+    function doLogin() {
+        if(document.getElementById('adminPass').value === "1234") {
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('uploadBox').style.display = 'block';
+        }
+    }
+
+    async function uploadToCloud() {
+        const file = document.getElementById('fileIn').files[0];
+        if(!file) return alert("File chuno!");
+        const type = file.type.startsWith('video') ? 'video' : 'image';
+        
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("upload_preset", UPLOAD_PRESET);
+
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${type}/upload`, { method: "POST", body: fd });
+        const data = await res.json();
+        
+        if(data.secure_url) {
+            const myLink = window.location.origin + window.location.pathname + "?m=" + data.secure_url;
+            document.getElementById('finalUrl').value = myLink;
+            document.getElementById('result').style.display = 'block';
+        }
+    }
+</script>
+
+<script type='text/javascript' src='//pl25732282.effectivegatecpm.com/6d/5a/e2/6d5ae25a8b0c2974cabf7d073c7cc9f8.js'></script>
+
+</body>
+</html>
