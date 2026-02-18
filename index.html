@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Unlocker - Manual</title>
+    <style>
+        body { background: #0b0b0b; color: #fff; font-family: sans-serif; text-align: center; padding: 15px; margin: 0; }
+        .box { background: #1a1a1a; padding: 20px; border-radius: 15px; border: 2px solid #00ffa3; margin-top: 20px; }
+        img, video { width: 100%; border-radius: 12px; filter: blur(20px); margin-top: 15px; transition: 1s; }
+        .btn { background: #0084ff; color: #fff; border: none; padding: 15px; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 15px; font-weight: bold; font-size: 18px; }
+        .btn-open { background: #ff0055; color: #fff; display: none; box-shadow: 0 0 15px #ff0055; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
+        #timerSection { display: none; margin-top: 20px; background: #222; padding: 15px; border-radius: 10px; border: 1px dashed #00ffa3; }
+        #seconds { font-size: 35px; color: #00ffa3; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="loginBox" class="box">
+    <h3>Admin Login</h3>
+    <input type="password" id="pass" placeholder="1234" style="padding:10px; width:80%;">
+    <button class="btn" onclick="checkPass()">Login</button>
+</div>
+
+<div id="adminPanel" class="box" style="display:none;">
+    <input type="file" id="fileInput"> 
+    <button class="btn" onclick="uploadFile()" style="background:#00ffa3; color:#000;">Upload & Get Link</button>
+    <div id="linkOutput" style="display:none; margin-top:10px; word-break:break-all;">
+        <p id="finalURL" style="color:#00ffa3; font-size:12px;"></p>
+        <button onclick="copyLink()" style="padding:5px 15px;">Copy</button>
+    </div>
+</div>
+
+<div id="userPanel" class="box" style="display:none;">
+    <h3 id="head" style="color: #ff4d4d;">🔒 FILE LOCKED</h3>
+    
+    <img id="p" style="display:none;"> 
+    <video id="v" style="display:none;" playsinline loop muted></video>
+
+    <button id="unBtn" class="btn" onclick="startManualTimer()">UNLOCK & VIEW (30s Ad)</button>
+
+    <div id="timerSection">
+        <p style="margin:0;">Vigyapan chal raha hai... Wait karein</p>
+        <p style="font-size:12px; color:#aaa;">Ad is playing... Please wait</p>
+        <div id="seconds">30</div>
+    </div>
+
+    <button id="openBtn" class="btn btn-open" onclick="revealFile()">📂 OPEN FILE / FILE DEKHEIN</button>
+    
+    <script type='text/javascript' src='//pl25732282.effectivegatecpm.com/6d/5a/e2/6d5ae25a8b0c2974cabf7d073c7cc9f8.js'></script>
+</div>
+
+<script>
+    const CLOUD_NAME = "dn10tsupa"; 
+    const UPLOAD_PRESET = "dn10tsupa"; 
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const m = urlParams.get('m');
+
+    if (m) {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('userPanel').style.display = 'block';
+        if (m.match(/\.(mp4|mov|webm)/i)) {
+            const v = document.getElementById('v'); v.src = m; v.style.display = 'block';
+        } else {
+            const p = document.getElementById('p'); p.src = m; p.style.display = 'block';
+        }
+    }
+
+    function checkPass() {
+        if(document.getElementById('pass').value === "1234") {
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+        }
+    }
+
+    async function uploadFile() {
+        const file = document.getElementById('fileInput').files[0];
+        if (!file) return alert("Select File");
+        const btn = document.querySelector("#adminPanel .btn");
+        btn.innerText = "Uploading...";
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", UPLOAD_PRESET);
+        const type = file.type.startsWith('video') ? 'video' : 'image';
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${type}/upload`, { method: "POST", body: formData });
+        const data = await res.json();
+        if(data.secure_url) {
+            document.getElementById('finalURL').innerText = window.location.origin + window.location.pathname + "?m=" + data.secure_url;
+            document.getElementById('linkOutput').style.display = 'block';
+        }
+        btn.innerText = "Upload & Get Link";
+    }
+
+    // --- MAIN LOGIC ---
+    function startManualTimer() {
+        // 1. Ad khulegi (paisa kamane ke liye)
+        window.open('ads.html', '_blank'); 
+
+        // 2. Button chupao aur timer dikhao
+        document.getElementById('unBtn').style.display = 'none';
+        document.getElementById('timerSection').style.display = 'block';
+        
+        let timeLeft = 30;
+        let countdown = setInterval(() => {
+            timeLeft--;
+            document.getElementById('seconds').innerText = timeLeft;
+            
+            if(timeLeft <= 0) {
+                clearInterval(countdown);
+                // 3. Timer chupao aur MANUAL OPEN BUTTON dikhao
+                document.getElementById('timerSection').style.display = 'none';
+                document.getElementById('openBtn').style.display = 'block';
+            }
+        }, 1000);
+    }
+
+    function revealFile() {
+        // 4. Manual click par blur hatana
+        const photo = document.getElementById('p');
+        const video = document.getElementById('v');
+        
+        photo.style.filter = "blur(0px)";
+        video.style.filter = "blur(0px)";
+        
+        if(video.src) {
+            video.muted = false;
+            video.play();
+        }
+        
+        document.getElementById('openBtn').style.display = 'none';
+        document.getElementById('head').innerText = "🔓 UNLOCKED / KHUL GAYA";
+        document.getElementById('head').style.color = "#00ffa3";
+        alert("Enjoy! File has been revealed.");
+    }
+
+    function copyLink() {
+        navigator.clipboard.writeText(document.getElementById('finalURL').innerText);
+        alert("Copied!");
+    }
+</script>
+</body>
+</html>
