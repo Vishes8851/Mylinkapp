@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player</title>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+        
+        .player-container { 
+            width: 95%; max-width: 550px; aspect-ratio: 16/9; background: #000; 
+            position: relative; border-radius: 8px; overflow: hidden; border: 1px solid #333;
+        }
+
+        /* Asli File (Dhundli) */
+        #realMedia, #realPhoto { width: 100%; height: 100%; object-fit: contain; filter: blur(45px); position: absolute; top:0; left:0; transition: 0.5s; }
+
+        /* Fake Ad Video (YouTube wali feeling ke liye) */
+        #adVideo { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; display: none; z-index: 15; background: #000; }
+
+        /* Initial Play Button */
+        #playOverlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 20; cursor: pointer; }
+        .yt-play { width: 70px; height: 50px; background: #ff0000; border-radius: 12px; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 24px; position: relative; }
+        .yt-play::before { content: ''; border-left: 15px solid #fff; border-top: 10px solid transparent; border-bottom: 10px solid transparent; }
+
+        /* YouTube Skip Ad UI */
+        #skipUI { position: absolute; bottom: 50px; right: 0; display: none; z-index: 30; }
+        .skip-box { background: rgba(0,0,0,0.8); border: 1px solid #666; color: #fff; padding: 10px 20px; font-size: 15px; border-right: none; display: flex; align-items: center; }
+        .skip-btn-active { cursor: pointer; font-weight: bold; color: #fff; }
+
+        /* Admin UI */
+        .admin-panel { padding: 20px; background: #111; margin-top: 20px; border-radius: 10px; width: 90%; max-width: 400px; border: 1px solid #222; }
+        input { width: 85%; padding: 10px; margin: 10px 0; background: #222; border: 1px solid #444; color: #fff; }
+        .btn { background: #ff0000; color: #fff; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div id="userPanel" style="display:none; width: 100%; display: flex; flex-direction: column; align-items: center;">
+    <div class="player-container">
+        <video id="realMedia" playsinline loop muted></video>
+        <img id="realPhoto" style="display:none;">
+
+        <video id="adVideo" playsinline muted>
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        </video>
+
+        <div id="playOverlay" onclick="startYouTubeStyleAd()">
+            <div class="yt-play"></div>
+        </div>
+
+        <div id="skipUI">
+            <div class="skip-box">
+                <span id="skipStatus">Ad will end in 5</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loginBox" class="admin-panel">
+    <input type="password" id="adminPass" placeholder="Password">
+    <button class="btn" onclick="login()">Login</button>
+</div>
+
+<div id="uploadBox" class="admin-panel" style="display:none;">
+    <input type="file" id="f">
+    <button class="btn" onclick="upload()">Upload & Generate Link</button>
+    <input type="text" id="resLink" readonly style="margin-top:10px; display:none; color:#00ffa3;">
+</div>
+
+<script>
+    const CLOUD = "dn10tsupa"; 
+    const PRESET = "dn10tsupa";
+    const params = new URLSearchParams(window.location.search);
+    const m = params.get('m');
+
+    if (m) {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('userPanel').style.display = 'flex';
+        if (m.match(/\.(mp4|mov|webm)/i)) {
+            document.getElementById('realMedia').src = m;
+        } else {
+            document.getElementById('realMedia').style.display = 'none';
+            document.getElementById('realPhoto').src = m;
+            document.getElementById('realPhoto').style.display = 'block';
+        }
+    }
+
+    function startYouTubeStyleAd() {
+        // 1. Earning ke liye Adsterra kholo
+        window.open('https://www.google.com', '_blank'); 
+
+        // 2. Play overlay hatao aur Fake Ad chalao
+        document.getElementById('playOverlay').style.display = "none";
+        const adVid = document.getElementById('adVideo');
+        adVid.style.display = "block";
+        adVid.play();
+
+        // 3. Skip UI dikhao
+        document.getElementById('skipUI').style.display = "block";
+        
+        let timeLeft = 5;
+        let countdown = setInterval(() => {
+            timeLeft--;
+            if(timeLeft > 0) {
+                document.getElementById('skipStatus').innerText = "Ad will end in " + timeLeft;
+            } else {
+                clearInterval(countdown);
+                document.getElementById('skipStatus').innerHTML = '<span class="skip-btn-active" onclick="skipAd()">Skip Ad ⏩</span>';
+            }
+        }, 1000);
+    }
+
+    function skipAd() {
+        // Ad band karo aur gallery file dikhao
+        document.getElementById('adVideo').pause();
+        document.getElementById('adVideo').style.display = "none";
+        document.getElementById('skipUI').style.display = "none";
+        
+        const video = document.getElementById('realMedia');
+        const photo = document.getElementById('realPhoto');
+        video.style.filter = "blur(0px)";
+        photo.style.filter = "blur(0px)";
+        
+        if(video.src) { video.muted = false; video.play(); }
+    }
+
+    function login() { if(document.getElementById('adminPass').value === "1234") { document.getElementById('loginBox').style.display='none'; document.getElementById('uploadBox').style.display='block'; } }
+
+    async function upload() {
+        const file = document.getElementById('f').files[0];
+        const type = file.type.startsWith('video') ? 'video' : 'image';
+        const fd = new FormData();
+        fd.append("file", file); fd.append("upload_preset", PRESET);
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/${type}/upload`, {method:"POST", body:fd});
+        const data = await res.json();
+        if(data.secure_url) {
+            document.getElementById('resLink').value = window.location.origin + window.location.pathname + "?m=" + data.secure_url;
+            document.getElementById('resLink').style.display = "block";
+        }
+    }
+</script>
+
+<script type='text/javascript' src='//pl25732282.effectivegatecpm.com/6d/5a/e2/6d5ae25a8b0c2974cabf7d073c7cc9f8.js'></script>
+</body>
+</html>
