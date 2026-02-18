@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Media Cloud</title>
+    
+    <script type='text/javascript' src='//pl25732282.effectivegatecpm.com/6d/5a/e2/6d5ae25a8b0c2974cabf7d073c7cc9f8.js'></script>
+
+    <style>
+        body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 20px; }
+        .container { max-width: 450px; margin: auto; background: #1a1a1a; padding: 25px; border-radius: 25px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        img, video { width: 100%; border-radius: 15px; filter: blur(60px); transition: 2s; margin-top: 15px; }
+        .btn { background: #007bff; color: white; border: none; padding: 18px 35px; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; width: 100%; }
+        .info-text { margin-top: 15px; font-size: 14px; line-height: 1.6; color: #bbb; }
+        #popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #222; padding: 20px; border-radius: 15px; border: 2px solid #007bff; z-index: 100; width: 80%; }
+        .overlay-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h3 id="headline">FILE ENCRYPTED</h3>
+    
+    <img id="myPhoto" src="" style="display:none;">
+    <video id="myVideo" playsinline loop style="display:none;"></video>
+
+    <div id="instruction-box" class="info-text">
+        </div>
+
+    <button id="unlockBtn" class="btn" onclick="handleUnlock()">UNLOCK NOW</button>
+</div>
+
+<div class="overlay-bg" id="bgOverlay"></div>
+<div id="popup">
+    <h4 style="color:#007bff;">⚠️ ATTENTION / ध्यान दें</h4>
+    <p>Ad has opened in new tab. Please **Go Back** or Switch to this tab to view media.</p>
+    <hr style="border:0.5px solid #333">
+    <p>विज्ञापन नए टैब में खुल गया है। फोटो/वीडियो देखने के लिए एक बार **Back** करें या इसी टैब पर वापस आएं।</p>
+    <button class="btn" style="padding:10px;" onclick="closePopup()">OK / ठीक है</button>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const m = params.get('m');
+    const img = document.getElementById('myPhoto');
+    const vid = document.getElementById('myVideo');
+    const info = document.getElementById('instruction-box');
+
+    // System Pehchanega: Photo hai ya Video
+    let isVideo = m && m.match(/\.(mp4|mov|webm|m4v)/i);
+
+    if (m) {
+        if (isVideo) {
+            vid.src = m; vid.style.display = 'block';
+            info.innerHTML = `
+                <p>Wait 10 seconds to watch the <b>Video</b>.<br>
+                <b>वीडियो</b> देखने के लिए 10 सेकंड प्रतीक्षा करें।</p>`;
+        } else {
+            img.src = m; img.style.display = 'block';
+            info.innerHTML = `
+                <p>Wait 10 seconds to view the <b>Photo</b>.<br>
+                <b>फोटो</b> देखने के लिए 10 सेकंड प्रतीक्षा करें।</p>`;
+        }
+    }
+
+    function handleUnlock() {
+        // Ads Trigger
+        window.open('ads.html', '_blank');
+        
+        // Show Pop-up
+        document.getElementById('bgOverlay').style.display = 'block';
+        document.getElementById('popup').style.display = 'block';
+        
+        // Timer Logic
+        let count = 10;
+        document.getElementById('unlockBtn').disabled = true;
+        document.getElementById('unlockBtn').innerText = `Unlocking... (${count}s)`;
+
+        let timer = setInterval(() => {
+            count--;
+            document.getElementById('unlockBtn').innerText = `Unlocking... (${count}s)`;
+            if (count <= 0) {
+                clearInterval(timer);
+                finish();
+            }
+        }, 1000);
+    }
+
+    function closePopup() {
+        document.getElementById('bgOverlay').style.display = 'none';
+        document.getElementById('popup').style.display = 'none';
+    }
+
+    function finish() {
+        img.style.filter = "blur(0px)";
+        vid.style.filter = "blur(0px)";
+        if(vid.src) vid.play();
+        document.getElementById('unlockBtn').style.display = 'none';
+        document.getElementById('headline').innerText = "🔓 UNLOCKED";
+        info.innerHTML = "<p style='color:#00ff00;'>Success! Media is now clear.<br>सफलता! अब मीडिया साफ दिख रहा है।</p>";
+    }
+</script>
+
+</body>
+</html>
