@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Media - Monetag System</title>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+        .player-container { width: 95%; max-width: 550px; aspect-ratio: 16/9; background: #111; position: relative; border-radius: 12px; overflow: hidden; border: 2px solid #333; }
+        #realMedia, #realPhoto { width: 100%; height: 100%; object-fit: contain; filter: blur(45px) !important; position: absolute; top:0; left:0; transition: 0.5s; }
+        #adBox { position: absolute; top:0; left:0; width:100%; height:100%; background: #000; z-index: 20; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        #skipUI { position: absolute; bottom: 15px; right: 0; display: none; z-index: 100; }
+        .yt-skip { background: rgba(0,0,0,0.9); color: #fff; padding: 12px 25px; border: 1px solid #555; border-right: none; font-size: 14px; font-weight: bold; cursor: default; }
+        .can-skip { cursor: pointer !important; background: #fff !important; color: #000 !important; }
+        #playOverlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 30; cursor: pointer; }
+        .yt-btn { width: 68px; height: 48px; background: #f00; border-radius: 12px; display: flex; justify-content: center; align-items: center; }
+        .yt-btn::after { content: ''; border-left: 18px solid #fff; border-top: 10px solid transparent; border-bottom: 10px solid transparent; margin-left: 5px; }
+        .admin { padding: 20px; background: #111; margin-top: 20px; border-radius: 10px; width: 90%; max-width: 400px; border: 1px solid #333; text-align: center; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; color: #fff; margin-top: 10px; }
+        #copyBox { display: none; margin-top: 15px; padding: 15px; background: #222; border: 2px dashed #00ffa3; border-radius: 8px; }
+        #finalLink { width: 100%; background: transparent; color: #00ffa3; border: none; text-align: center; font-size: 12px; outline: none; }
+    </style>
+</head>
+<body>
+
+<div id="userPanel" style="display:none; width: 100%; flex-direction: column; align-items: center;">
+    <div class="player-container">
+        <video id="realMedia" playsinline loop muted></video>
+        <img id="realPhoto" style="display:none;">
+        <div id="playOverlay" onclick="startSystem()"><div class="yt-btn"></div></div>
+        
+        <div id="adBox">
+            <h3 style="color:#aaa;">Premium Ad... Please Wait</h3>
+            <div id="skipUI"><div class="yt-skip" id="skipBtn">Ad ends in 5s</div></div>
+        </div>
+    </div>
+</div>
+
+<div id="loginBox" class="admin">
+    <input type="password" id="pass" placeholder="Password (1234)" style="width:80%; padding:10px; margin-bottom:10px; background: #222; color: #fff; border: 1px solid #444;">
+    <button class="btn" style="background:#f00;" onclick="login()">Login</button>
+</div>
+
+<div id="uploadBox" class="admin" style="display:none;">
+    <input type="file" id="f">
+    <button class="btn" id="upBtn" style="background:#f00;" onclick="upMedia()">🚀 GET LINK INSTANTLY</button>
+    <div id="copyBox">
+        <input type="text" id="finalLink" readonly>
+        <button class="btn" onclick="copyLink()" style="background:#00ffa3; color:#000;">📋 COPY LINK</button>
+    </div>
+</div>
+
+<script>
+    const CLOUD="dn10tsupa", PRESET="dn10tsupa";
+    
+    // MONETAG DIRECT LINK (Apna Monetag link yahan dalein)
+    const MONETAG_LINK = "https://your-monetag-direct-link.com/";
+
+    function login(){ 
+        if(document.getElementById('pass').value==="1234") {
+            document.getElementById('loginBox').style.display='none'; 
+            document.getElementById('uploadBox').style.display='block'; 
+        } else alert("Wrong Password!");
+    }
+
+    const m = new URLSearchParams(window.location.search).get('m');
+    if(m){
+        document.getElementById('loginBox').style.display='none'; 
+        document.getElementById('userPanel').style.display='flex';
+        if(m.match(/\.(mp4|webm|mov|m4v)/i)) {
+            document.getElementById('realMedia').src=m;
+        } else { 
+            document.getElementById('realMedia').style.display='none'; 
+            document.getElementById('realPhoto').src=m; 
+            document.getElementById('realPhoto').style.display='block'; 
+        }
+    }
+
+    function startSystem(){
+        document.getElementById('playOverlay').style.display="none"; 
+        document.getElementById('adBox').style.display="flex"; 
+        document.getElementById('skipUI').style.display="block";
+
+        let s=5; // 5 second timer
+        let t=setInterval(()=>{
+            s--; 
+            document.getElementById('skipBtn').innerText="Ad ends in "+s+"s";
+            if(s<=0){
+                clearInterval(t);
+                let b=document.getElementById('skipBtn'); 
+                b.innerText="Skip Ad ⏩"; 
+                b.classList.add('can-skip');
+                b.onclick=()=>{
+                    window.open(MONETAG_LINK, '_blank');
+                    document.getElementById('adBox').style.display="none"; 
+                    document.getElementById('realMedia').style.setProperty('filter', 'none', 'important');
+                    document.getElementById('realPhoto').style.setProperty('filter', 'none', 'important');
+                    if(document.getElementById('realMedia').src){ 
+                        document.getElementById('realMedia').muted=false; 
+                        document.getElementById('realMedia').play(); 
+                    }
+                };
+            }
+        },1000);
+    }
+
+    async function upMedia(){
+        const f=document.getElementById('f').files[0]; if(!f) return alert("Select File!");
+        const b=document.getElementById('upBtn'); b.disabled=true; b.innerText="⚡ GENERATING...";
+        const customName = "v_" + Date.now();
+        const type = f.type.includes('video') ? 'video' : 'image';
+        const instantURL = `https://res.cloudinary.com/${CLOUD}/${type}/upload/${customName}`;
+        document.getElementById('finalLink').value = window.location.origin + window.location.pathname + "?m=" + instantURL;
+        document.getElementById('copyBox').style.display = "block"; b.style.display = "none";
+        const fd=new FormData(); fd.append("file", f); fd.append("upload_preset", PRESET); fd.append("public_id", customName);
+        fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/${type}/upload`, {method:"POST", body:fd});
+    }
+
+    function copyLink(){
+        const c=document.getElementById("finalLink"); c.select(); navigator.clipboard.writeText(c.value); alert("Link Copied!");
+    }
+</script>
+</body>
+</html>
