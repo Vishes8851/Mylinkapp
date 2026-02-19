@@ -1,0 +1,67 @@
+<style>
+    /* Light Blur Effect */
+    #realMedia, #realPhoto { 
+        width: 100%; 
+        height: 100%; 
+        object-fit: contain; 
+        filter: blur(8px); /* Pehle 60px tha, ab sirf 8px hai - ekdam halka blur */
+        position: absolute; 
+        top:0; 
+        left:0; 
+        transition: 0.5s; 
+    }
+    
+    /* Timer aur Ad settings pehle jaisi fast rahengi */
+    .yt-skip { 
+        background: rgba(0,0,0,0.8); 
+        color: #fff; 
+        padding: 12px 25px; 
+        font-size: 15px; 
+        font-weight: bold; 
+    }
+</style>
+
+<script>
+    // Timer logic ko aur smooth banaya gaya hai
+    function startSystem() {
+        document.getElementById('playOverlay').style.display = "none";
+        document.getElementById('adBox').style.display = "flex";
+        document.getElementById('skipUI').style.display = "block";
+        refreshAd();
+        
+        let adInt = setInterval(refreshAd, 5000); // Har 5s mein Ad badlegi
+
+        let sec = 30;
+        let t = setInterval(() => {
+            sec--;
+            document.getElementById('skipBtn').innerText = "Ad will end in " + sec + "s";
+            
+            if(sec <= 0) {
+                clearInterval(t); 
+                clearInterval(adInt);
+                const skipBtn = document.getElementById('skipBtn');
+                skipBtn.innerText = "Skip Ad ⏩"; 
+                skipBtn.classList.add('can-skip');
+                
+                skipBtn.onclick = () => {
+                    document.getElementById('adBox').style.display = "none";
+                    document.getElementById('downloadArea').style.display = "block";
+                    const media = document.getElementById('realMedia');
+                    const photo = document.getElementById('realPhoto');
+                    
+                    // Skip dabate hi blur poori tarah khatam ho jayega
+                    media.style.filter = "blur(0px)"; 
+                    photo.style.filter = "blur(0px)";
+                    
+                    if(media.src) { 
+                        media.muted = false; 
+                        media.play(); 
+                    }
+                };
+            }
+        }, 1000); // Har 1 second pe perfect update
+    }
+
+    // Upload khatam hone par "DONE" dikhane ka fast logic
+    // (Baki chunked upload code wahi rahega jo 98% stuck fix karta hai)
+</script>
