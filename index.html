@@ -1,0 +1,43 @@
+    async function upMedia() {
+        const f = document.getElementById('f').files[0];
+        if(!f) return alert("File select karein!");
+        const b = document.getElementById('upBtn');
+        b.disabled = true; b.innerText = "🚀 FAST UPLOADING...";
+
+        const fd = new FormData();
+        fd.append("file", f);
+        fd.append("upload_preset", PRESET);
+
+        // Photo ke liye purana fast method
+        if(!f.type.includes('video')){
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`, {method:"POST", body:fd});
+            const d = await res.json();
+            if(d.secure_url) finish(d.secure_url); else reset();
+            return;
+        }
+
+        // Video ke liye Naya Fast Copy System (Parallel)
+        const chunkSize = 5000000; 
+        const totalChunks = Math.ceil(f.size / chunkSize);
+        const uid = "v" + Date.now();
+        let done = 0;
+
+        for (let i = 0; i < totalChunks; i++) {
+            const chunkFD = new FormData();
+            chunkFD.append("file", f.slice(i * chunkSize, Math.min((i + 1) * chunkSize, f.size)));
+            chunkFD.append("upload_preset", PRESET);
+
+            fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/video/upload`, {
+                method: "POST", body: chunkFD,
+                headers: {"X-Unique-Upload-Id": uid, "Content-Range": `bytes ${i * chunkSize}-${Math.min((i + 1) * chunkSize, f.size) - 1}/${f.size}`}
+            }).then(async (res) => {
+                const d = await res.json();
+                done++;
+                if (d.secure_url) { // Jaise hi link mile, turant copy box dikhao
+                    document.getElementById('finalLink').value = window.location.origin + window.location.pathname + "?m=" + d.secure_url;
+                    document.getElementById('copyBox').style.display = "block";
+                    b.style.display = "none";
+                }
+            }).catch(e => { alert("Retry!"); reset(); });
+        }
+    }
