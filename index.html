@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viral Video Player</title>
+    <style>
+        body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
+        
+        /* Video Container */
+        .player-box { width: 100%; max-width: 600px; aspect-ratio: 16/9; background: #111; position: relative; overflow: hidden; border-bottom: 2px solid #333; }
+        #realMedia, #realPhoto { width: 100%; height: 100%; object-fit: contain; filter: blur(50px); transition: 0.8s; }
+
+        /* Ad Frame */
+        #adLayer { position: absolute; top:0; left:0; width:100%; height:100%; z-index: 50; display: none; background: #000; }
+        #adIframe { width: 100%; height: 100%; border: none; transform: scale(1.1); }
+
+        /* Timer & Skip UI */
+        #skipUI { position: absolute; bottom: 40px; right: 0; z-index: 100; display: none; text-align: right; }
+        .yt-skip { background: rgba(0,0,0,0.85); color: #fff; padding: 12px 20px; border: 1px solid #555; border-right: none; font-size: 14px; }
+        .can-skip { cursor: pointer !important; background: #f00 !important; border-color: #f00; font-weight: bold; }
+
+        /* Play Button Overlay */
+        #playOverlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 60; cursor: pointer; text-align: center; }
+        .yt-btn { width: 70px; height: 50px; background: #f00; border-radius: 12px; position: relative; margin-bottom: 10px; }
+        .yt-btn::after { content: ''; position: absolute; top: 15px; left: 28px; border-left: 20px solid #fff; border-top: 12px solid transparent; border-bottom: 12px solid transparent; }
+        .msg { font-size: 14px; color: #fff; font-weight: bold; text-shadow: 2px 2px 4px #000; }
+
+        /* Admin/Upload Section */
+        .admin-area { padding: 20px; width: 90%; max-width: 400px; margin-top: 20px; background: #111; border-radius: 10px; border: 1px solid #333; text-align: center; }
+        input, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: none; font-weight: bold; }
+        #finalBox { display: none; background: #222; padding: 15px; border: 2px dashed #00ffa3; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="userPanel" style="display:none; width: 100%;">
+    <div class="player-box">
+        <video id="realMedia" playsinline loop muted></video>
+        <img id="realPhoto" style="display:none;">
+        
+        <div id="playOverlay" onclick="startSystem()">
+            <div class="yt-btn"></div>
+            <div class="msg">Video dekhne ke liye 5 second wait karein<br>Wait 5 seconds to watch video</div>
+        </div>
+        
+        <div id="adLayer">
+            <iframe id="adIframe"></iframe>
+            <div id="skipUI">
+                <div class="yt-skip" id="skipBtn">Wait 5s...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loginBox" class="admin-area">
+    <h3>Admin Login</h3>
+    <input type="password" id="pass" placeholder="Password (1234)" style="background:#222; color:#fff;">
+    <button onclick="login()" style="background:#f00; color:#fff; cursor:pointer;">LOGIN</button>
+</div>
+
+<div id="uploadBox" class="admin-area" style="display:none;">
+    <input type="file" id="f">
+    <button id="upBtn" onclick="upMedia()" style="background:#f00; color:#fff; cursor:pointer;">🚀 VIRAL LINK BANAYEIN</button>
+    <div id="finalBox">
+        <input type="text" id="finalLink" readonly style="background:transparent; color:#00ffa3; border:none; text-align:center;">
+        <button onclick="copyLink()" style="background:#00ffa3; color:#000; cursor:pointer;">📋 COPY LINK</button>
+    </div>
+</div>
+
+<script>
+    const AD_LINK = "https://www.effectivegatecpm.com/n1142d7c5v?key=41bc70c49790bd21e2c627fcefc7f3d7";
+    const CLOUD="dn10tsupa", PRESET="dn10tsupa";
+
+    function login(){ 
+        if(document.getElementById('pass').value==="1234"){
+            document.getElementById('loginBox').style.display='none';
+            document.getElementById('uploadBox').style.display='block';
+        } else { alert("Wrong Password!"); }
+    }
+
+    const m = new URLSearchParams(window.location.search).get('m');
+    if(m){
+        document.getElementById('loginBox').style.display='none';
+        document.getElementById('userPanel').style.display='block';
+        if(m.match(/\.(mp4|webm|mov|m4v)/i)){ document.getElementById('realMedia').src=m; }
+        else { document.getElementById('realMedia').style.display='none'; document.getElementById('realPhoto').src=m; document.getElementById('realPhoto').style.display='block'; }
+    }
+
+    function startSystem(){
+        document.getElementById('playOverlay').style.display="none";
+        document.getElementById('adLayer').style.display="block";
+        document.getElementById('adIframe').src = AD_LINK;
+        document.getElementById('skipUI').style.display="block";
+
+        let s = 5; 
+        let t = setInterval(() => {
+            s--;
+            document.getElementById('skipBtn').innerText = "Wait " + s + "s...";
+            if(s <= 0){
+                clearInterval(t);
+                let b = document.getElementById('skipBtn');
+                b.innerHTML = "SKIP AD ⏩";
+                b.classList.add('can-skip');
+                b.onclick = () => {
+                    document.getElementById('adLayer').style.display="none";
+                    document.getElementById('realMedia').style.filter="none";
+                    document.getElementById('realPhoto').style.filter="none";
+                    if(document.getElementById('realMedia').src){ 
+                        document.getElementById('realMedia').muted=false; 
+                        document.getElementById('realMedia').play(); 
+                    }
+                };
+            }
+        }, 1000);
+    }
+
+    async function upMedia(){
+        const file = document.getElementById('f').files[0]; if(!file) return alert("File chunein!");
+        const btn = document.getElementById('upBtn'); btn.innerText="⚡ UPLOADING..."; btn.disabled=true;
+        const cName = "v_" + Date.now();
+        const type = file.type.includes('video') ? 'video' : 'image';
+        const rawURL = `https://res.cloudinary.com/${CLOUD}/${type}/upload/${cName}`;
+        document.getElementById('finalLink').value = window.location.origin + window.location.pathname + "?m=" + rawURL;
+        document.getElementById('finalBox').style.display="block"; btn.style.display="none";
+        const fd = new FormData(); fd.append("file", file); fd.append("upload_preset", PRESET); fd.append("public_id", cName);
+        fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/${type}/upload`, {method:"POST", body:fd});
+    }
+
+    function copyLink(){ const c=document.getElementById("finalLink"); c.select(); navigator.clipboard.writeText(c.value); alert("Link Copied!"); }
+</script>
+</body>
+</html>
