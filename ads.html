@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Loading...</title>
+    <style>
+        body { 
+            margin: 0; padding: 0; background: #000; color: #fff; 
+            font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; 
+        }
+        #container { text-align: center; width: 90%; }
+        .spinner {
+            border: 5px solid #333; border-top: 5px solid #f00; border-radius: 50%;
+            width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #timerBtn {
+            background: #222; border: 2px solid #444; padding: 15px 30px; border-radius: 10px;
+            font-weight: bold; font-size: 18px; margin-top: 20px; cursor: not-allowed;
+        }
+        iframe { width: 1px; height: 1px; opacity: 0; position: absolute; }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <div class="spinner"></div>
+        <h2 id="status">BUFFERING VIDEO...</h2>
+        <div id="timerBtn">Wait 10s...</div>
+        
+        <iframe src="https://omg10.com/4/10641475"></iframe>
+    </div>
+
+    <script>
+        let timeLeft = 10;
+        let timerElement = document.getElementById('timerBtn');
+        let statusElement = document.getElementById('status');
+        
+        // 💰 APKA MONETAG LINK
+        const AD_URL = "https://omg10.com/4/10641475";
+
+        let countdown = setInterval(() => {
+            timeLeft--;
+            timerElement.innerText = "Wait " + timeLeft + "s...";
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                statusElement.innerText = "VIDEO READY! ✅";
+                timerElement.innerText = "WATCH FULL VIDEO ⏩";
+                timerElement.style.background = "#0f0";
+                timerElement.style.color = "#000";
+                timerElement.style.cursor = "pointer";
+                
+                // Click karte hi Ad par bheje
+                timerElement.onclick = function() {
+                    window.location.href = AD_URL;
+                };
+            }
+        }, 1000);
+    </script>
+
+</body>
+</html>
