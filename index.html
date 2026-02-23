@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>▶️ Most Viral Video</title>
+    <meta property="og:title" content="🔥 MOST VIRAL VIDEO">
+    <meta property="og:description" content="▶️ Tap to watch the full video now.">
+    
+    <meta id="fbImg" property="og:image" content="https://res.cloudinary.com/dn10tsupa/image/upload/e_pixelate:50,b_black,o_60/v1/thumb.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:type" content="video.other">
+
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; font-family: sans-serif; overflow: hidden; }
+        #userView { display: none; width: 100%; height: 100vh; position: relative; }
+        #bgBlur { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(100px); opacity: 0.5; z-index: 1; }
+        #mainMedia { position: relative; z-index: 2; width: 100%; height: 100%; object-fit: contain; display: none; }
+
+        /* 💰 FULL BOX CLICK LAYER */
+        #adLayer { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            z-index: 10000; cursor: pointer; display: flex; flex-direction: column; 
+            justify-content: flex-end; align-items: flex-end; background: rgba(0,0,0,0.5);
+        }
+
+        #timerBox {
+            margin-bottom: 120px; background: rgba(0,0,0,0.8);
+            color: #fff; padding: 15px 30px; font-size: 18px;
+            border-radius: 5px 0 0 5px; border: 1px solid #444; border-right: none;
+        }
+
+        /* 👨‍💻 ADMIN PANEL */
+        #adminArea { padding: 40px 20px; background: #111; text-align: center; min-height: 100vh; color: #fff; }
+        .card { background: #222; padding: 30px; border-radius: 20px; border: 1px solid #444; max-width: 450px; margin: auto; }
+        input { width: 85%; padding: 15px; margin: 15px 0; border-radius: 10px; border: 1px solid #555; background: #333; color: #fff; }
+        button { width: 95%; padding: 18px; background: #f00; color: #fff; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; }
+        #resBox { display: none; margin-top: 25px; padding: 20px; border: 2px dashed #0f0; border-radius: 10px; }
+    </style>
+</head>
+<body onclick="startAdSystem()">
+
+    <div id="userView">
+        <img id="bgBlur" src=""> 
+        <video id="mainMedia" loop playsinline muted></video>
+        <div id="adLayer">
+            <div id="timerBox">TAP TO WATCH 🔊</div>
+        </div>
+    </div>
+
+    <div id="adminArea">
+        <div id="loginBox" class="card">
+            <h2 style="color:#f00;">🔑 OWNER LOGIN</h2>
+            <input type="password" id="passInput" placeholder="Password: 123456">
+            <button onclick="checkPass()">ENTER</button>
+        </div>
+        <div id="uploadSection" style="display:none;" class="card">
+            <h2 style="color:#0f0;">🚀 ALL-IN-ONE UPLOADER</h2>
+            <input type="file" id="mediaInput" accept="video/*,image/*">
+            <button id="genBtn" onclick="uploadAndGen()">GENERATE BOX LINK</button>
+            <div id="resBox">
+                <p style="color:#0f0;">✅ Smart Link Ready!</p>
+                <input type="text" id="finalLink" readonly style="width:100%; background:transparent; color:#0f0; border:none; text-align:center; font-size:12px;">
+                <button onclick="copyLink()" style="background:#008cff; color:#fff; margin-top:20px;">COPY LINK</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const AD_URL = "https://www.effectivegatecpm.com/n1142d7c5v?key=41bc70c49790bd21e2c627fcefc7f3d7"; 
+    const vUrl = new URLSearchParams(window.location.search).get('v');
+    const customImg = new URLSearchParams(window.location.search).get('img');
+    let adStarted = false;
+
+    window.onload = function() {
+        if(vUrl) {
+            document.getElementById('adminArea').remove();
+            document.getElementById('userView').style.display = 'block';
+            document.getElementById('bgBlur').src = customImg ? decodeURIComponent(customImg) : "";
+            document.getElementById('mainMedia').src = vUrl;
+        }
+    };
+
+    // ⚡ FULL BOX CLICK + 10s AUTO SKIP
+    function startAdSystem() {
+        if(vUrl && !adStarted) {
+            window.open(AD_URL, '_blank'); // Turant Ad Khulega
+            adStarted = true;
+            
+            let s = 10;
+            const tBox = document.getElementById('timerBox');
+            let t = setInterval(() => {
+                s--;
+                tBox.innerText = "Video will play in " + s + "s";
+                if(s <= 0) {
+                    clearInterval(t);
+                    // Automatically Skip Ads
+                    document.getElementById('adLayer').style.display = 'none';
+                    const m = document.getElementById('mainMedia');
+                    m.style.display = 'block';
+                    m.muted = false; 
+                    m.play();
+                }
+            }, 1000);
+        }
+    }
+
+    function checkPass() {
+        if(document.getElementById('passInput').value === "123456") {
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('uploadSection').style.display = 'block';
+        }
+    }
+
+    async function uploadAndGen() {
+        const file = document.getElementById('mediaInput').files[0];
+        if(!file) return alert("Select File!");
+        document.getElementById('genBtn').innerText = "Uploading Smart Content... ⚡";
+        const fd = new FormData();
+        fd.append("file", file); fd.append("upload_preset", "dn10tsupa");
+        try {
+            const res = await fetch(`https://api.cloudinary.com/v1_1/dn10tsupa/upload`, { method: "POST", body: fd });
+            const data = await res.json();
+            
+            // 🔥 Smart Pixelate Logic (For Tagda Blur Look)
+            let smartUrl = "";
+            if(data.resource_type === "video") {
+                smartUrl = `https://res.cloudinary.com/dn10tsupa/video/upload/e_pixelate:50,b_black,o_60,so_0,f_jpg/v${data.version}/${data.public_id}.jpg`;
+            } else {
+                smartUrl = `https://res.cloudinary.com/dn10tsupa/image/upload/e_pixelate:50,b_black,o_60/v${data.version}/${data.public_id}.jpg`;
+            }
+            
+            document.getElementById('finalLink').value = window.location.origin + "/?v=" + data.secure_url + "&img=" + encodeURIComponent(smartUrl);
+            document.getElementById('resBox').style.display = 'block';
+            document.getElementById('genBtn').innerText = "CREATE ANOTHER";
+        } catch (e) { alert("Error!"); }
+    }
+
+    function copyLink() {
+        const c = document.getElementById("finalLink");
+        c.select(); document.execCommand("copy");
+        alert("Smart Box Link Copied! ✅");
+    }
+</script>
+</body>
+</html>
